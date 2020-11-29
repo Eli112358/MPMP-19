@@ -12,7 +12,6 @@ data_path = pathlib.Path('../data')
 db = None
 primes = None
 save_interval = 1000
-since_save = 0
 
 
 # todo: use argparse to control save interval and run length
@@ -73,7 +72,6 @@ def save():
 
 
 def check(n):
-	global since_save
 	prime = next(primes)
 	p = prime[1]
 	data['running_total'] += p ** 2
@@ -81,10 +79,8 @@ def check(n):
 	if data['running_total'] % n == 0:
 		data['results'].append(n)
 		print(n)
-	since_save += 1
-	if since_save > save_interval:
+	if n % save_interval == 0:
 		save()
-		since_save = 0
 
 
 if __name__ == '__main__':
