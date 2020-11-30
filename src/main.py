@@ -62,7 +62,7 @@ if __name__ == '__main__':
 		description='Search for all values of N, where the sum of the '
 		            'squares of the first N primes is a multiple of N. '
 		            '(MPMP19)',
-		epilog='You can use Esc at any point after "Done; running" to '
+		epilog='You can use Esc at any point after "Running..." to '
 		       'stop computation, save and exit'
 	)
 	parser.add_argument('-r', dest='range', metavar='R', type=int, default=-1,
@@ -80,11 +80,11 @@ if __name__ == '__main__':
 	except FileNotFoundError:
 		save('Setup')
 	db = dbm.open(str(data_path / 'generator.db'), 'c')
-	print('Done; running')
 	primes = get_primes_dbm(db)
 	iter_range.value = args.range
 	process = Process(target=key_handler, args=(iter_range,))
 	process.start()
+	print('Running...')
 	while running():
 		check()
 	save('Quit', True)
