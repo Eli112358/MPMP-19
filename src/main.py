@@ -13,7 +13,6 @@ data = dict(
 data_path = pathlib.Path('../data')
 db = None
 primes = None
-save_interval = 1000
 
 
 def get_primes():
@@ -82,7 +81,7 @@ def check(n):
 	if data['running_total'] % n == 0:
 		data['results'].append(n)
 		print(n)
-	if n % save_interval == 0:
+	if n % args.interval == 0:
 		save('Auto-save')
 
 
@@ -95,16 +94,18 @@ def running():
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(
-		description='Search for all values of n, where the sum of the '
-		            'squares of the first n primes is a multiple of n. '
+		description='Search for all values of N, where the sum of the '
+		            'squares of the first N primes is a multiple of N. '
 		            '(MPMP19)',
 		epilog='You can use Ctrl+C at any point after "Done; running" to '
 		       'stop computation, save and exit'
 	)
 	parser.add_argument('-r', dest='range', metavar='R', type=int, default=-1,
 	                    help='Iteration range before exiting '
-	                         '(default of -1 requires Ctrl+C to save & exit)')
-	# todo: add arg for auto-save interval
+	                         '(will compute N to (N + R), N is where it left off; '
+	                         'default of -1 will run indefinitely and requires Ctrl+C to save & exit)')
+	parser.add_argument('-as', dest='interval', metavar='S', type=int, default=1000,
+	                    help='Auto-save when N is a multiple of S (no commas; default 1000)')
 	args = parser.parse_args(argv[1:])
 	print('Loading...')
 	try:
