@@ -3,7 +3,10 @@ import dbm
 import json
 import os
 import pathlib
+from multiprocessing import Process, Value
 from sys import argv
+
+import keyboard
 
 data = dict(
 	last_checked=0,
@@ -12,6 +15,7 @@ data = dict(
 )
 data_path = pathlib.Path('../data')
 db = None
+iter_range = Value('i', -1)
 primes = None
 
 
@@ -90,10 +94,15 @@ def check():
 
 
 def running():
-	condition = args.range != 0
-	if args.range > 0:
-		args.range -= 1
+	condition = iter_range.value != 0
+	if iter_range.value > 0:
+		iter_range.value -= 1
 	return condition
+
+
+def key_handler(_range):
+	keyboard.wait('esc')
+	_range.value = 0
 
 
 if __name__ == '__main__':
@@ -101,13 +110,13 @@ if __name__ == '__main__':
 		description='Search for all values of N, where the sum of the '
 		            'squares of the first N primes is a multiple of N. '
 		            '(MPMP19)',
-		epilog='You can use Ctrl+C at any point after "Done; running" to '
+		epilog='You can use Esc at any point after "Done; running" to '
 		       'stop computation, save and exit'
 	)
 	parser.add_argument('-r', dest='range', metavar='R', type=int, default=-1,
 	                    help='Iteration range before exiting '
 	                         '(will compute N to (N + R), N is where it left off; '
-	                         'default of -1 will run indefinitely and requires Ctrl+C to save & exit)')
+	                         'default of -1 will run indefinitely and requires Esc to save & exit)')
 	parser.add_argument('-as', dest='interval', metavar='S', type=int, default=100,
 	                    help='Auto-save when N is a multiple of S (no commas; default 100)')
 	args = parser.parse_args(argv[1:])
@@ -121,9 +130,9 @@ if __name__ == '__main__':
 	db = dbm.open(str(data_path / 'generator.db'), 'c')
 	print('Done; running')
 	primes = get_primes()
+	iter_range.value = args.range
+	process = Process(target=key_handler, args=(iter_range,))
+	process.start()
 	while running():
-		try:
-			check()
-		except KeyboardInterrupt:
-			args.range = 0
+		check()
 	save('Quit', True)
