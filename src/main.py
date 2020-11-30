@@ -67,8 +67,12 @@ def get_primes():
 		db['q'] = str(q() + 1)
 
 
-def save():
+def save(name, close=False):
+	print(f'[{name}] Saving ...')
 	json.dump(data, open(data_path / 'results.json', 'w'), indent='\t')
+	if close:
+		db.close()
+	print(f'[{name}] Done')
 
 
 def check(n):
@@ -80,7 +84,7 @@ def check(n):
 		data['results'].append(n)
 		print(n)
 	if n % save_interval == 0:
-		save()
+		save('Auto-save')
 
 
 if __name__ == '__main__':
@@ -90,9 +94,9 @@ if __name__ == '__main__':
 			os.makedirs(data_path)
 		data = json.load(open(data_path / 'results.json'))
 	except FileNotFoundError:
-		save()
+		save('Setup')
 	db = dbm.open(str(data_path / 'generator.db'), 'c')
-	print('Done')
+	print('Done; running')
 	primes = get_primes()
 	running = True
 	while running:
@@ -100,7 +104,4 @@ if __name__ == '__main__':
 			check(data['last_checked'] + 1)
 		except KeyboardInterrupt:
 			running = False
-	print('Saving...')
-	save()
-	db.close()
-	print('Done')
+	save('Quit', True)
