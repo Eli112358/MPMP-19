@@ -8,6 +8,8 @@ from sys import argv
 
 import keyboard
 
+from prime import get_primes_dbm
+
 data = dict(
 	last_checked=0,
 	results=[],
@@ -17,56 +19,6 @@ data_path = pathlib.Path('../data')
 db = None
 iter_range = Value('i', -1)
 primes = None
-
-
-def get_primes():
-	"""
-	Sieve of Eratosthenes
-	From https://stackoverflow.com/a/568618/2640292
-
-	This implementation, however, reads and stores its variables to disk via dbm
-	This is so we can resume the computation where it left off, every time this script is ran
-
-	I initially tried using pickle, however, the file size quickly grew to the limit of what pickle can handle
-	"""
-
-	def i():
-		try:
-			return int(db['i'])
-		except KeyError:
-			db['i'] = str(0)
-			return i()
-
-	def q():
-		try:
-			return int(db['q'])
-		except KeyError:
-			db['q'] = str(2)
-			return q()
-
-	def setdefault(key, default):
-		if key not in db:
-			db[key] = json.dumps(default)
-
-	def append(key, value):
-		_list = json.loads(db[key])
-		_list.append(value)
-		db[key] = json.dumps(_list)
-
-	i()
-	q()
-	while True:
-		if db['q'] not in db:
-			yield i(), q()
-			db['i'] = str(i() + 1)
-			db[str(q() ** 2)] = json.dumps([q()])
-		else:
-			for n in json.loads(db[db['q']]):
-				n_q = str(n + q())
-				setdefault(n_q, [])
-				append(n_q, n)
-			del db[db['q']]
-		db['q'] = str(q() + 1)
 
 
 def save(name, close=False):
@@ -129,7 +81,7 @@ if __name__ == '__main__':
 		save('Setup')
 	db = dbm.open(str(data_path / 'generator.db'), 'c')
 	print('Done; running')
-	primes = get_primes()
+	primes = get_primes_dbm(db)
 	iter_range.value = args.range
 	process = Process(target=key_handler, args=(iter_range,))
 	process.start()

@@ -1,29 +1,13 @@
 import argparse
 from sys import argv
 
+from prime import get_primes
+
 primes = None
 
 """
 Verify/Confirm a given number (usually from results.json)
 """
-
-
-def get_primes():
-	"""
-	Sieve of Eratosthenes
-	From https://stackoverflow.com/a/568618/2640292
-	"""
-	d = {}
-	q = 2
-	while True:
-		if q not in d:
-			yield q
-			d[q * q] = [q]
-		else:
-			for n in d[q]:
-				d.setdefault(n + q, []).append(n)
-			del d[q]
-		q += 1
 
 
 def check(n):
