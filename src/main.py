@@ -104,8 +104,8 @@ if __name__ == '__main__':
 	                    help='Iteration range before exiting '
 	                         '(will compute N to (N + R), N is where it left off; '
 	                         'default of -1 will run indefinitely and requires Ctrl+C to save & exit)')
-	parser.add_argument('-as', dest='interval', metavar='S', type=int, default=1000,
-	                    help='Auto-save when N is a multiple of S (no commas; default 1000)')
+	parser.add_argument('-as', dest='interval', metavar='S', type=int, default=100,
+	                    help='Auto-save when N is a multiple of S (no commas; default 100)')
 	args = parser.parse_args(argv[1:])
 	print('Loading...')
 	try:
