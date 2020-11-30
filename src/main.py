@@ -73,15 +73,19 @@ def save(name, close=False):
 	print(f'[{name}] Done')
 
 
-def check(n):
+def check():
+
+	def n():
+		return data['last_checked']
+
 	prime = next(primes)
 	p = prime[1]
 	data['running_total'] += p ** 2
-	data['last_checked'] = n
-	if data['running_total'] % n == 0:
-		data['results'].append(n)
-		print(n)
-	if n % args.interval == 0:
+	if data['running_total'] % n() == 0:
+		data['results'].append(n())
+		print(n())
+	data['last_checked'] += 1
+	if n() % args.interval == 0:
 		save('Auto-save')
 
 
@@ -119,7 +123,7 @@ if __name__ == '__main__':
 	primes = get_primes()
 	while running():
 		try:
-			check(data['last_checked'] + 1)
+			check()
 		except KeyboardInterrupt:
 			args.range = 0
 	save('Quit', True)
