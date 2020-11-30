@@ -12,6 +12,7 @@ data_path = pathlib.Path('../data')
 db = None
 primes = None
 save_interval = 1000
+run_length = -1
 
 
 # todo: use argparse to control save interval and run length
@@ -87,6 +88,13 @@ def check(n):
 		save('Auto-save')
 
 
+def running():
+	global run_length
+	condition = run_length > 0 or run_length < 0
+	run_length = max(-1, run_length - 1)
+	return condition
+
+
 if __name__ == '__main__':
 	print('Loading...')
 	try:
@@ -98,10 +106,9 @@ if __name__ == '__main__':
 	db = dbm.open(str(data_path / 'generator.db'), 'c')
 	print('Done; running')
 	primes = get_primes()
-	running = True
-	while running:
+	while running():
 		try:
 			check(data['last_checked'] + 1)
 		except KeyboardInterrupt:
-			running = False
+			run_length = 0
 	save('Quit', True)
