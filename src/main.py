@@ -1,7 +1,9 @@
+import argparse
 import dbm
 import json
 import os
 import pathlib
+from sys import argv
 
 data = dict(
 	last_checked=0,
@@ -12,11 +14,6 @@ data_path = pathlib.Path('../data')
 db = None
 primes = None
 save_interval = 1000
-run_length = -1
-
-
-# todo: use argparse to control save interval and run length
-# todo... yet still support indefinite run length (until keyboard interrupt)
 
 
 def get_primes():
@@ -29,6 +26,7 @@ def get_primes():
 
 	I initially tried using pickle, however, the file size quickly grew to the limit of what pickle can handle
 	"""
+
 	def i():
 		try:
 			return int(db['i'])
@@ -89,13 +87,25 @@ def check(n):
 
 
 def running():
-	global run_length
-	condition = run_length > 0 or run_length < 0
-	run_length = max(-1, run_length - 1)
+	condition = args.range != 0
+	if args.range > 0:
+		args.range -= 1
 	return condition
 
 
 if __name__ == '__main__':
+	parser = argparse.ArgumentParser(
+		description='Search for all values of n, where the sum of the '
+		            'squares of the first n primes is a multiple of n. '
+		            '(MPMP19)',
+		epilog='You can use Ctrl+C at any point after "Done; running" to '
+		       'stop computation, save and exit'
+	)
+	parser.add_argument('-r', dest='range', metavar='R', type=int, default=-1,
+	                    help='Iteration range before exiting '
+	                         '(default of -1 requires Ctrl+C to save & exit)')
+	# todo: add arg for auto-save interval
+	args = parser.parse_args(argv[1:])
 	print('Loading...')
 	try:
 		if not os.path.isdir(data_path):
@@ -110,5 +120,5 @@ if __name__ == '__main__':
 		try:
 			check(data['last_checked'] + 1)
 		except KeyboardInterrupt:
-			run_length = 0
+			args.range = 0
 	save('Quit', True)
