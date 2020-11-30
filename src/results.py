@@ -1,7 +1,6 @@
 import json
-import pathlib
 
-data_path = pathlib.Path('../data')
+from main import data_path
 
 """
 Display results so far,
